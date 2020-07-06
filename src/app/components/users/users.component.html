@@ -1,0 +1,104 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Users</h1>
+    <div>
+      <button mat-raised-button color="primary" (click)="openDialog(dialog)">
+        New
+      </button>
+    </div>
+  </div>
+
+  <mat-table [dataSource]="dataSource$ | async" class="mat-elevation-z8">
+    <ng-container matColumnDef="id">
+      <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{ element._id }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="username">
+      <mat-header-cell *matHeaderCellDef> Username </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{ element.username }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <mat-header-cell *matHeaderCellDef> Created At </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.createdAt | date: "short" }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="updatedAt">
+      <mat-header-cell *matHeaderCellDef> Updated At </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.updatedAt | date: "short" }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef> Action </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="openDialog(dialog, element)"
+        >
+          Edit
+        </button>
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="removeResource(element)"
+        >
+          Delete
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+
+  <ng-template #dialog>
+    <h2 mat-dialog-title>Form</h2>
+    <mat-dialog-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <p>
+          <mat-form-field>
+            <input
+              type="text"
+              matInput
+              placeholder="Username"
+              formControlName="username"
+            />
+          </mat-form-field>
+        </p>
+
+        <p>
+          <mat-form-field>
+            <input
+              type="password"
+              matInput
+              placeholder="Password"
+              formControlName="password"
+            />
+          </mat-form-field>
+        </p>
+
+        <p *ngIf="error" class="error">
+          {{ error }}
+        </p>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button
+        mat-button
+        mat-raised-button
+        color="primary"
+        [mat-dialog-close]="true"
+        (click)="submit()"
+      >
+        Save
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+</div>

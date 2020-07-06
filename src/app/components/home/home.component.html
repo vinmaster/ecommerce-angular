@@ -1,0 +1,22 @@
+
+<h1 class="title">Welcome, {{ (dataService.currentUser$ | async)?.username }}</h1>
+
+<mat-card class="card" routerLink="/orders">
+  <mat-card-title>Orders</mat-card-title>
+  <mat-card-content>{{ (dataService.orders$ | async).length }}</mat-card-content>
+</mat-card>
+
+<mat-card class="card" routerLink="/products">
+  <mat-card-title>Products</mat-card-title>
+  <mat-card-content>{{ (dataService.products$ | async).length }}</mat-card-content>
+</mat-card>
+
+<mat-card class="card" routerLink="/categories">
+  <mat-card-title>Categories</mat-card-title>
+  <mat-card-content>{{ (dataService.categories$ | async).length }}</mat-card-content>
+</mat-card>
+
+<mat-card class="card" routerLink="/users">
+  <mat-card-title>Users</mat-card-title>
+  <mat-card-content>{{ (dataService.users$ | async).length }}</mat-card-content>
+</mat-card>

@@ -1,0 +1,48 @@
+.page {
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mat-header-cell {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mat-cell {
+  text-align: center;
+  justify-content:center;
+}
+
+.mat-column-id {
+  flex: 0 0 130px;
+}
+
+.mat-column-price {
+  flex: 0 0 70px;
+}
+
+.mat-column-qty {
+  flex: 0 0 30px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+}
+
+.qty-text {
+  color: grey;
+  font-size: 10px;
+}
+
+.product {
+  display: flex;
+}

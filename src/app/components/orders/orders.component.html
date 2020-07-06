@@ -1,0 +1,216 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Orders</h1>
+    <div>
+      <button mat-raised-button color="primary" (click)="openDialog(dialog)">
+        New
+      </button>
+    </div>
+  </div>
+
+  <mat-table [dataSource]="dataSource$ | async" class="mat-elevation-z8">
+    <ng-container matColumnDef="id">
+      <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{ element._id }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="order_date">
+      <mat-header-cell *matHeaderCellDef> Order Date </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.createdAt | date: "short" }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="customer">
+      <mat-header-cell *matHeaderCellDef> Customer </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.customer?.username }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="total">
+      <mat-header-cell *matHeaderCellDef> Total </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <div class="total">
+          <div>
+            {{ getPriceFromProductIds(element.product_ids) | currency }}
+          </div>
+          <div class="qty-text">Qty: {{ element.product_ids | count }}</div>
+        </div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="payment_status">
+      <mat-header-cell *matHeaderCellDef> Payment Status </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.payment_status }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="fulfillment_status">
+      <mat-header-cell *matHeaderCellDef> Fulfillment Status </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.fulfillment_status }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef> Action </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="openDialog(dialog, element)"
+        >
+          Edit
+        </button>
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="removeResource(element)"
+        >
+          Delete
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+
+  <ng-template #dialog>
+    <h2 mat-dialog-title>Form</h2>
+    <mat-dialog-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div>
+          <mat-form-field>
+            <mat-select formControlName="customer_id" placeholder="Customer">
+              <mat-option
+                *ngFor="let user of dataService.users$ | async"
+                [value]="user._id"
+              >
+                {{ user.username }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <h2>Products</h2>
+          <div class="product" *ngFor="let product of products; let i = index">
+            <mat-form-field>
+              <mat-select
+                placeholder="Product"
+                [(ngModel)]="product._id"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                <mat-option
+                  *ngFor="let product of dataService.products$ | async"
+                  [value]="product._id"
+                >
+                  {{ product.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field style="width: 50px;">
+              <input
+                type="number"
+                matInput
+                placeholder="Qty"
+                [(ngModel)]="product.qty"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </mat-form-field>
+
+            <div>
+              Total:
+              {{
+                getPriceFromProductIds([product._id]) * product.qty | currency
+              }}
+            </div>
+
+            <button
+              mat-icon-button
+              color="primary"
+              type="button"
+              aria-label="Delete"
+            >
+              <mat-icon style="color: red;" (click)="removeProduct(i)"
+                >delete</mat-icon
+              >
+            </button>
+          </div>
+
+          <button
+            mat-raised-button
+            color="accent"
+            type="button"
+            (click)="addProduct()"
+          >
+            Add Product
+          </button>
+
+          <!-- <mat-form-field>
+            <mat-select placeholder="Product" multiple>
+              <mat-option
+                *ngFor="let product of dataService.products$ | async"
+                [value]="product._id"
+              >
+                {{ product.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field> -->
+        </div>
+
+        <div style="margin-top: 20px;">
+          <mat-form-field>
+            <mat-select
+              formControlName="payment_status"
+              placeholder="Payment Status"
+            >
+              <mat-option
+                *ngFor="let status of payment_status"
+                [value]="status"
+              >
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <p>
+          <mat-form-field>
+            <mat-select
+              formControlName="fulfillment_status"
+              placeholder="Fulfillment Status"
+            >
+              <mat-option
+                *ngFor="let status of fulfillment_status"
+                [value]="status"
+              >
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </p>
+
+        <p *ngIf="error" class="error">
+          {{ error }}
+        </p>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button
+        mat-button
+        mat-raised-button
+        color="primary"
+        [mat-dialog-close]="true"
+        (click)="submit()"
+      >
+        Save
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+</div>
